@@ -83,9 +83,9 @@ GrayGelf.prototype._setupLevels = function() {
   })
 }
 
-GrayGelf.prototype.write = function(chunk) {
+GrayGelf.prototype.write = function(chunk, cb) {
   if (!this._udp) return
-  this._udp.send(chunk, 0, chunk.length, this.graylogPort, this.graylogHost)
+  this._udp.send(chunk, 0, chunk.length, this.graylogPort, this.graylogHost, cb)
 }
 
 GrayGelf.prototype._emitError = function(er) { this.emit('error', er) }
@@ -109,14 +109,14 @@ GrayGelf.prototype._prepGelf = function(level, short, long, fields) {
   return gelf
 }
 
-GrayGelf.prototype._send = function(gelf) {
+GrayGelf.prototype._send = function(gelf, cb) {
   var gelfbuf = new Buffer(JSON.stringify(gelf))
   var graygelf = this
 
   if (gelfbuf.length < graygelf.chunkSize && !graygelf.alwaysCompress) {
     // The buffer fits within the nominal chunksize,
     // so compression can be bypassed and sent directly
-    return graygelf.write(gelfbuf)
+    return graygelf.write(gelfbuf, cb)
   }
 
   zlib[this.compressType](gelfbuf, function(er, message) {
@@ -142,11 +142,11 @@ GrayGelf.prototype._send = function(gelf) {
 
           message.copy(chunk, 12, offset, offset + bytesToSend)
           offset += bytesToSend
-          graygelf.write(chunk)
+          graygelf.write(chunk, cb)
         }
       })
     }
-    else graygelf.write(message)
+    else graygelf.write(message, cb)
   })
 }
 
@@ -161,11 +161,11 @@ GrayGelf.prototype.stream = function(name) {
   return lines
 }
 
-GrayGelf.prototype.raw = function(raw) {
+GrayGelf.prototype.raw = function(raw, cb) {
   if (!raw.version) raw.version = '1.1'
   if (!raw.host) raw.host = this.hostname
   if (!raw.timestamp) raw.timestamp = timestamp()
-  this._send(raw)
+  this._send(raw, cb)
   return raw
 }
 

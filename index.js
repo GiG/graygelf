@@ -6,6 +6,8 @@ var Stream = require('stream')
 var format = require('util').format
 var split = require('split')
 
+const {lookup} = require('dns-lookup-cache')
+
 var timestamp = function() { return Date.now() / 1000.0 }
 
 /**
@@ -46,7 +48,15 @@ var GrayGelf = function(opts) {
   this.hostname = os.hostname()
 
   if (!opts.mock) {
-    this._udp = dgram.createSocket('udp4')
+    this._udp = dgram.createSocket({
+      type: 'udp4',
+      lookup: (hostname, options, callback) => {
+        if (hostname === '0.0.0.0' || '127.0.0.1') {
+          hostname = 'localhost'
+        }
+        lookup(hostname, options, callback)
+      },
+    })
     this._udp.on('error', this._emitError.bind(this))
     this._udp.unref()
   }

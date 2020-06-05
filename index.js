@@ -50,7 +50,12 @@ var GrayGelf = function(opts) {
   if (!opts.mock) {
     this._udp = dgram.createSocket({
       type: 'udp4',
-      lookup,
+      lookup: (hostname, options, callback) => {
+        if (hostname === '0.0.0.0' || '127.0.0.1') {
+          hostname = 'localhost'
+        }
+        lookup(hostname, options, callback)
+      },
     })
     this._udp.on('error', this._emitError.bind(this))
     this._udp.unref()

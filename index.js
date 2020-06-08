@@ -53,7 +53,7 @@ var GrayGelf = function(opts) {
       lookup: (hostname, options, callback) => {
         if (hostname === '0.0.0.0' || hostname === 'localhost' || hostname === '127.0.0.1') {
           callback(null, '127.0.0.1', 4)
-        } else {
+        } else { 
           lookup(hostname, options, callback)
         }
       },

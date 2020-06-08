@@ -51,10 +51,11 @@ var GrayGelf = function(opts) {
     this._udp = dgram.createSocket({
       type: 'udp4',
       lookup: (hostname, options, callback) => {
-        if (hostname === '0.0.0.0' || hostname === '127.0.0.1') {
-          hostname = 'localhost'
+        if (hostname === '0.0.0.0' || hostname === 'localhost' || hostname === '127.0.0.1') {
+          callback(null, '127.0.0.1', 4)
+        } else {
+          lookup(hostname, options, callback)
         }
-        lookup(hostname, options, callback)
       },
     })
     this._udp.on('error', this._emitError.bind(this))

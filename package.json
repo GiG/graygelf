@@ -27,7 +27,6 @@
     "url": "git+ssh://git@github.com/wavded/graygelf.git"
   },
   "dependencies": {
-    "dns-lookup-cache": "^1.0.4",
     "split": "^1.0.1"
   },
   "devDependencies": {
